@@ -32,19 +32,21 @@ export function SiteNavbar() {
                 <NavbarLogo />
                 <NavItems items={navItems} />
                 <div className="flex items-center gap-4">
-                    <NavbarButton className="rounded-full bg-white/10 px-10 py-3 font-semibold no-underline transition hover:bg-white/20"
-                        formAction={async () => {
+                    <NavbarButton
+                        className="rounded-full bg-white/10 px-10 py-3 font-semibold no-underline transition hover:bg-white/20"
+                        onClick={async () => {
                             const res = await authClient.signIn.oauth2({
                                 providerId: "hack-club",
                                 callbackURL: "/",
-
                             });
-                            if (!res.data?.url) {
-                                throw new Error("No URL returned from signInSocial");
+                            if (res.data?.url) {
+                                window.location.href = res.data.url;
                             }
-                            redirect(res.data.url);
                         }}
-                        type="submit" variant="primary">Login with Hack Club</NavbarButton>
+                        variant="primary"
+                    >
+                        Login with Hack Club
+                    </NavbarButton>
                 </div>
             </NavBody>
 

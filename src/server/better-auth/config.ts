@@ -13,6 +13,7 @@ export const auth = betterAuth({
 	emailAndPassword: {
 		enabled: true,
 	},
+	experimental: { joins: true },
 	plugins: [
 		genericOAuth({
 			config: [
