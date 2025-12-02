@@ -1,11 +1,11 @@
 {
-  "id": "fafb91fc-1639-457a-8722-ea814998105c",
+  "id": "d0092b8e-f28f-4c9e-b425-b01d1cdab1de",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
-    "public.account": {
-      "name": "account",
+    "public.hc-sticker-dash_account": {
+      "name": "hc-sticker-dash_account",
       "schema": "",
       "columns": {
         "id": {
@@ -78,7 +78,8 @@
           "name": "created_at",
           "type": "timestamp",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "default": "now()"
         },
         "updated_at": {
           "name": "updated_at",
@@ -87,12 +88,28 @@
           "notNull": true
         }
       },
-      "indexes": {},
+      "indexes": {
+        "account_userId_idx": {
+          "name": "account_userId_idx",
+          "columns": [
+            {
+              "expression": "user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
       "foreignKeys": {
-        "account_user_id_user_id_fk": {
-          "name": "account_user_id_user_id_fk",
-          "tableFrom": "account",
-          "tableTo": "user",
+        "hc-sticker-dash_account_user_id_hc-sticker-dash_user_id_fk": {
+          "name": "hc-sticker-dash_account_user_id_hc-sticker-dash_user_id_fk",
+          "tableFrom": "hc-sticker-dash_account",
+          "tableTo": "hc-sticker-dash_user",
           "columnsFrom": [
             "user_id"
           ],
@@ -109,8 +126,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.session": {
-      "name": "session",
+    "public.hc-sticker-dash_session": {
+      "name": "hc-sticker-dash_session",
       "schema": "",
       "columns": {
         "id": {
@@ -135,7 +152,8 @@
           "name": "created_at",
           "type": "timestamp",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "default": "now()"
         },
         "updated_at": {
           "name": "updated_at",
@@ -168,12 +186,28 @@
           "notNull": false
         }
       },
-      "indexes": {},
+      "indexes": {
+        "session_userId_idx": {
+          "name": "session_userId_idx",
+          "columns": [
+            {
+              "expression": "user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
       "foreignKeys": {
-        "session_user_id_user_id_fk": {
-          "name": "session_user_id_user_id_fk",
-          "tableFrom": "session",
-          "tableTo": "user",
+        "hc-sticker-dash_session_user_id_hc-sticker-dash_user_id_fk": {
+          "name": "hc-sticker-dash_session_user_id_hc-sticker-dash_user_id_fk",
+          "tableFrom": "hc-sticker-dash_session",
+          "tableTo": "hc-sticker-dash_user",
           "columnsFrom": [
             "user_id"
           ],
@@ -186,8 +220,8 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "session_token_unique": {
-          "name": "session_token_unique",
+        "hc-sticker-dash_session_token_unique": {
+          "name": "hc-sticker-dash_session_token_unique",
           "nullsNotDistinct": false,
           "columns": [
             "token"
@@ -198,32 +232,27 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.pg-drizzle_sticker": {
-      "name": "pg-drizzle_sticker",
+    "public.hc-sticker-dash_sticker": {
+      "name": "hc-sticker-dash_sticker",
       "schema": "",
       "columns": {
         "id": {
           "name": "id",
-          "type": "integer",
+          "type": "serial",
           "primaryKey": true,
-          "notNull": true,
-          "identity": {
-            "type": "byDefault",
-            "name": "pg-drizzle_sticker_id_seq",
-            "schema": "public",
-            "increment": "1",
-            "startWith": "1",
-            "minValue": "1",
-            "maxValue": "2147483647",
-            "cache": "1",
-            "cycle": false
-          }
+          "notNull": true
         },
         "name": {
           "name": "name",
           "type": "varchar(256)",
           "primaryKey": false,
           "notNull": true
+        },
+        "category": {
+          "name": "category",
+          "type": "varchar(256)",
+          "primaryKey": false,
+          "notNull": false
         },
         "imageUrl": {
           "name": "imageUrl",
@@ -256,8 +285,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.user": {
-      "name": "user",
+    "public.hc-sticker-dash_user": {
+      "name": "hc-sticker-dash_user",
       "schema": "",
       "columns": {
         "id": {
@@ -282,7 +311,8 @@
           "name": "email_verified",
           "type": "boolean",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "default": false
         },
         "image": {
           "name": "image",
@@ -294,25 +324,28 @@
           "name": "created_at",
           "type": "timestamp",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "default": "now()"
         },
         "updated_at": {
           "name": "updated_at",
           "type": "timestamp",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "default": "now()"
         },
         "role": {
           "name": "role",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "banned": {
           "name": "banned",
           "type": "boolean",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false,
+          "default": false
         },
         "ban_reason": {
           "name": "ban_reason",
@@ -320,9 +353,9 @@
           "primaryKey": false,
           "notNull": false
         },
-        "ban_expires_at": {
-          "name": "ban_expires_at",
-          "type": "date",
+        "ban_expires": {
+          "name": "ban_expires",
+          "type": "timestamp",
           "primaryKey": false,
           "notNull": false
         }
@@ -331,8 +364,8 @@
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "user_email_unique": {
-          "name": "user_email_unique",
+        "hc-sticker-dash_user_email_unique": {
+          "name": "hc-sticker-dash_user_email_unique",
           "nullsNotDistinct": false,
           "columns": [
             "email"
@@ -343,8 +376,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.pg-drizzle_user_sticker": {
-      "name": "pg-drizzle_user_sticker",
+    "public.hc-sticker-dash_user_sticker": {
+      "name": "hc-sticker-dash_user_sticker",
       "schema": "",
       "columns": {
         "userId": {
@@ -412,10 +445,10 @@
         }
       },
       "foreignKeys": {
-        "pg-drizzle_user_sticker_userId_user_id_fk": {
-          "name": "pg-drizzle_user_sticker_userId_user_id_fk",
-          "tableFrom": "pg-drizzle_user_sticker",
-          "tableTo": "user",
+        "hc-sticker-dash_user_sticker_userId_hc-sticker-dash_user_id_fk": {
+          "name": "hc-sticker-dash_user_sticker_userId_hc-sticker-dash_user_id_fk",
+          "tableFrom": "hc-sticker-dash_user_sticker",
+          "tableTo": "hc-sticker-dash_user",
           "columnsFrom": [
             "userId"
           ],
@@ -425,10 +458,10 @@
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
-        "pg-drizzle_user_sticker_stickerId_pg-drizzle_sticker_id_fk": {
-          "name": "pg-drizzle_user_sticker_stickerId_pg-drizzle_sticker_id_fk",
-          "tableFrom": "pg-drizzle_user_sticker",
-          "tableTo": "pg-drizzle_sticker",
+        "hc-sticker-dash_user_sticker_stickerId_hc-sticker-dash_sticker_id_fk": {
+          "name": "hc-sticker-dash_user_sticker_stickerId_hc-sticker-dash_sticker_id_fk",
+          "tableFrom": "hc-sticker-dash_user_sticker",
+          "tableTo": "hc-sticker-dash_sticker",
           "columnsFrom": [
             "stickerId"
           ],
@@ -439,14 +472,22 @@
           "onUpdate": "no action"
         }
       },
-      "compositePrimaryKeys": {},
+      "compositePrimaryKeys": {
+        "hc-sticker-dash_user_sticker_userId_stickerId_pk": {
+          "name": "hc-sticker-dash_user_sticker_userId_stickerId_pk",
+          "columns": [
+            "userId",
+            "stickerId"
+          ]
+        }
+      },
       "uniqueConstraints": {},
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.verification": {
-      "name": "verification",
+    "public.hc-sticker-dash_verification": {
+      "name": "hc-sticker-dash_verification",
       "schema": "",
       "columns": {
         "id": {
@@ -477,16 +518,34 @@
           "name": "created_at",
           "type": "timestamp",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true,
+          "default": "now()"
         },
         "updated_at": {
           "name": "updated_at",
           "type": "timestamp",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true,
+          "default": "now()"
         }
       },
-      "indexes": {},
+      "indexes": {
+        "verification_identifier_idx": {
+          "name": "verification_identifier_idx",
+          "columns": [
+            {
+              "expression": "identifier",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},

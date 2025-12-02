@@ -1,10 +1,11 @@
+import { and, eq } from "drizzle-orm";
 import z from "zod";
-import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
+import { createTRPCRouter, protectedProcedure, publicProcedure } from "~/server/api/trpc";
 import { auth } from "~/server/better-auth";
-import { stickers } from "~/server/db/schema";
+import { stickers, userStickers } from "~/server/db/schema";
 
 export const stickerRouter = createTRPCRouter({
-    getStickers: protectedProcedure.query(async ({ ctx }) => {
+    getStickers: publicProcedure.query(async ({ ctx }) => {
         const stickers = await ctx.db.query.stickers.findMany();
         return stickers;
     }),
@@ -51,54 +52,48 @@ export const stickerRouter = createTRPCRouter({
                 }
             }
         }),
+    setStickerOwned: protectedProcedure
+        .input(
+            z.object({
+                stickerId: z.number().min(1),
+                newState: z.boolean(),
+                amount: z.number().min(1).optional(),
+            }),
+        )
+        .mutation(async ({ ctx, input }) => {
+            const userId = ctx.session.user.id;
+            const { stickerId, newState, amount = 1 } = input;
+            const existingEntry = await ctx.db.query.userStickers.findFirst({
+                where: (us, { and: andOp, eq: eqOp }) =>
+                    andOp(
+                        eqOp(us.userId, userId),
+                        eqOp(us.stickerId, stickerId),
+                    ),
+            });
 
-    // setStickerOwned: protectedProcedure
-    //     .input(
-    //         z.object({
-    //             stickerId: z.string().min(1),
-    //             owned: z.boolean(),
-    //             amount: z.number().min(1).optional(),
-    //         }),
-    //     )
-    //     .mutation(async ({ ctx, input }) => {
-    //         const userId = ctx.session.user.id;
-    //         const existingEntry = await ctx.db.query.userStickers.findFirst({
-    //             where: (userStickers, { and, eq }) =>
-    //                 and(
-    //                     eq(userStickers.userId, userId),
-    //                     eq(userStickers.stickerId, input.stickerId),
-    //                 ),
-    //         });
-    //         if (input.owned) {
-    //             if (existingEntry) {
-    //                 await ctx.db.update(ctx.db.userStickers).set({
-    //                     quantity: existingEntry.quantity + (input.amount ?? 1),
-    //                 })
-    //                 .where(
-    //                     (userStickers, { and, eq }) =>
-    //                         and(
-    //                             eq(userStickers.userId, userId),
-    //                             eq(userStickers.stickerId, input.stickerId),
-    //                         ),
-    //                 );
-    //             } else {
-    //                 await ctx.db.insert(ctx.db.userStickers).values({
-    //                     userId: userId,
-    //                     stickerId: input.stickerId,
-    //                     quantity: input.amount ?? 1,
-    //                 });
-    //             }
-    //         } else {
-    //             if (existingEntry) {
-    //                 await ctx.db.delete(ctx.db.userStickers)
-    //                 .where(
-    //                     (userStickers, { and, eq }) =>
-    //                         and(
-    //                             eq(userStickers.userId, userId),
-    //                             eq(userStickers.stickerId, input.stickerId),
-    //                         ),
-    //                 );
-    //             }
-    //         }
-    //     }),
+            if (newState) {
+                if (existingEntry) {
+                    await ctx.db
+                        .update(userStickers)
+                        .set({ quantity: existingEntry.quantity + amount })
+                        .where(
+                            eq(userStickers.userId, userId) && eq(userStickers.stickerId, stickerId),
+                        );
+                } else {
+                    await ctx.db.insert(userStickers).values({
+                        userId,
+                        stickerId,
+                        quantity: amount,
+                    });
+                }
+            } else {
+                if (existingEntry) {
+                    await ctx.db
+                        .delete(userStickers)
+                        .where(
+                            and(eq(userStickers.userId, userId), eq(userStickers.stickerId, stickerId)),
+                        );
+                }
+            }
+        }),
 });

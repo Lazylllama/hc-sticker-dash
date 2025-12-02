@@ -1,6 +1,8 @@
+/** biome-ignore-all lint/suspicious/noArrayIndexKey: dont care */
 "use client";
 
 import { gsap } from "gsap";
+import Image from "next/image";
 import { type FC, type ReactNode, useEffect, useRef } from "react";
 
 import stupidStickers from "~/components/stickers.json";
@@ -16,9 +18,8 @@ const GridMotion: FC<GridMotionProps> = ({
 }) => {
     const gridRef = useRef<HTMLDivElement>(null);
     const rowRefs = useRef<(HTMLDivElement | null)[]>([]);
-    const mouseXRef = useRef<number>(window.innerWidth / 2);
+    const mouseXRef = useRef<number>(0);
 
-    // Increased total items to fill the denser grid
     const totalItems = 60;
     const defaultItems = Array.from(
         { length: totalItems },
@@ -29,6 +30,7 @@ const GridMotion: FC<GridMotionProps> = ({
 
     useEffect(() => {
         gsap.ticker.lagSmoothing(0);
+        mouseXRef.current = window.innerWidth / 2;
 
         const handleMouseMove = (e: MouseEvent): void => {
             mouseXRef.current = e.clientX;
@@ -80,11 +82,9 @@ const GridMotion: FC<GridMotionProps> = ({
                 }}
             >
                 <div className="pointer-events-none absolute inset-0 z-4 bg-size-[250px]"></div>
-                {/* Increased rows to 6 and adjusted grid layout */}
                 <div className="relative z-2 grid h-[150vh] w-[150vw] flex-none origin-center rotate-[-15deg] grid-cols-1 grid-rows-6 gap-4">
                     {Array.from({ length: 6 }, (_, rowIndex) => (
                         <div
-                            // Increased columns to 10 for smaller items
                             className="grid grid-cols-10 gap-4"
                             key={rowIndex}
                             ref={(el) => {
@@ -99,10 +99,14 @@ const GridMotion: FC<GridMotionProps> = ({
                                         <div className="relative flex h-full w-full items-center justify-center overflow-hidden rounded-[10px] bg-[#111] text-[1.5rem] text-white">
                                             {typeof content === "string" &&
                                                 content.startsWith("http") ? (
-                                                <div
-                                                    className="absolute top-0 left-0 h-full w-full bg-center bg-cover"
-                                                    style={{ backgroundImage: `url(${content})` }}
-                                                ></div>
+                                                <Image
+                                                    alt=""
+                                                    className="absolute inset-0 h-full w-full object-contain"
+                                                    height={300}
+                                                    src={content}
+                                                    style={{ pointerEvents: "none" }}
+                                                    width={300}
+                                                />
                                             ) : (
                                                 <div className="z-1 p-4 text-center">{content}</div>
                                             )}
@@ -120,12 +124,12 @@ const GridMotion: FC<GridMotionProps> = ({
 };
 
 export default function LandingBackground() {
-    const items = [];
+    const items: string[] = [];
 
-    // Repeat stickers to ensure we have enough items to fill the larger grid
     while (items.length < 60) {
         for (const sticker of stupidStickers) {
             items.push(sticker.src);
+            if (items.length >= 60) break;
         }
     }
 

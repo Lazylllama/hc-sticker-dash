@@ -2,8 +2,8 @@ import "~/styles/globals.css";
 
 import type { Metadata } from "next";
 import { Geist } from "next/font/google";
+import { SiteNavbar } from "~/components/navbar";
 import { ThemeProvider } from "~/components/theme-provider";
-
 import { TRPCReactProvider } from "~/trpc/react";
 
 export const metadata: Metadata = {
@@ -28,7 +28,12 @@ export default function RootLayout({
 					disableTransitionOnChange
 					enableSystem
 				>
-					<TRPCReactProvider>{children}</TRPCReactProvider>
+					<TRPCReactProvider>
+						<div className="-translate-x-1/2 fixed top-4 left-1/2 z-50 flex items-center justify-center">
+							<SiteNavbar />
+						</div>
+						{children}
+					</TRPCReactProvider>
 				</ThemeProvider>
 			</body>
 		</html>

@@ -9,7 +9,8 @@ const config = {
     images: {
         remotePatterns: [
             new URL("https://c-cdn.hel1.your-objectstorage.com/s/v3/**"),
-            new URL("https://hc-cdn.hel1.your-objectstorage.com/s/v3/**")
+            new URL("https://hc-cdn.hel1.your-objectstorage.com/s/v3/**"),
+            new URL("https://icons.hackclub.com/api/icons/**"),
         ],
     },
 };

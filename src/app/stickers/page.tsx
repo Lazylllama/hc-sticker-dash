@@ -1,20 +1,25 @@
-import { redirect } from "next/navigation";
+import type { OwnedStickers } from "types/trpc";
+import { SiteNavbar } from "~/components/navbar";
 import StickerGrid from "~/components/sticker-grid";
 import { getSession } from "~/server/better-auth/server";
 import { api, HydrateClient } from "~/trpc/server";
 
 export default async function Home() {
+    var ownedStickers: OwnedStickers = [];
     const session = await getSession();
     const stickers = await api.stickers.getStickers();
 
-    if (!session) {
-        redirect("/");
+    if (session) {
+        ownedStickers = await api.stickers.getOwnedStickers();
     }
 
     return (
         <HydrateClient>
-            Hello {session.user?.name}!
-            <StickerGrid stickers={stickers} />
+            <StickerGrid
+                isAuthenticated={!!session}
+                ownedStickers={ownedStickers}
+                stickers={stickers}
+            />
         </HydrateClient>
     );
 }

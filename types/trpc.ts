@@ -8,5 +8,6 @@ export type RouterInputs = AppRouterInputs;
 export type RouterOutputs = AppRouterOutputs;
 
 export type Stickers = RouterOutputs["stickers"]["getStickers"];
+export type OwnedStickers = RouterOutputs["stickers"]["getOwnedStickers"];
 export type ImportNewStickersFromJsonInput =
     RouterInputs["stickers"]["importNewStickersFromJson"];
